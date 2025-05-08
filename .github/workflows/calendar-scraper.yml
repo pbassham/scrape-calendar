@@ -8,13 +8,15 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This is important for deployment
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
           
       - name: Install dependencies
         run: |
@@ -24,9 +26,15 @@ jobs:
       - name: Scrape calendar
         run: python scrape_calendar.py
         
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+      - name: Upload calendar as artifact
+        uses: actions/upload-artifact@v3
         with:
-          branch: gh-pages
+          name: calendar
+          path: my_calendar.ics
+          
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
           folder: .
-          target-folder: .
+          branch: gh-pages
+          clean: false  # Don't remove existing files
